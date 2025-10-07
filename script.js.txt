@@ -1,0 +1,96 @@
+// script.js
+
+// Poetic welcome
+window.onload = () => {
+  alert("🐍 Welcome to Python Playground!\nLet your code dance and your logic sing.");
+};
+
+// Sample quiz questions
+const quizData = [
+  {
+    question: "What is the output of print(2 ** 3)?",
+    options: ["5", "6", "8", "9"],
+    answer: 2
+  },
+  {
+    question: "Which keyword is used to define a function in Python?",
+    options: ["func", "define", "def", "function"],
+    answer: 2
+  },
+  {
+    question: "What does 'len()' do?",
+    options: ["Adds numbers", "Returns length", "Deletes item", "Loops list"],
+    answer: 1
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+function startQuiz() {
+  const quizSection = document.getElementById("quiz");
+  quizSection.innerHTML = `<h2>🎯 Quiz Time!</h2>`;
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = quizData[currentQuestion];
+  const quizSection = document.getElementById("quiz");
+
+  let optionsHTML = q.options.map((opt, i) => 
+    `<button onclick="checkAnswer(${i})">${opt}</button>`
+  ).join("<br>");
+
+  quizSection.innerHTML = `
+    <h3>${q.question}</h3>
+    ${optionsHTML}
+  `;
+}
+
+function checkAnswer(selected) {
+  if (selected === quizData[currentQuestion].answer) {
+    score++;
+    alert("✅ Correct!");
+  } else {
+    alert("❌ Oops! Try the next one.");
+  }
+
+  currentQuestion++;
+  if (currentQuestion < quizData.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const quizSection = document.getElementById("quiz");
+  quizSection.innerHTML = `
+    <h2>🏁 Quiz Completed!</h2>
+    <p>Your Score: ${score} / ${quizData.length}</p>
+    <button onclick="startQuiz()">Try Again</button>
+  `;
+// ✅ Save score to backend
+  fetch('https://your-backend.onrender.com/api/score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: "Jahnavi", score: score })
+  });
+}
+/ Voice support
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+}
+
+// ✅ Leaderboard function
+function loadLeaderboard() {
+  fetch('https://your-backend.onrender.com/api/score')
+    .then(res => res.json())
+    .then(data => {
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "<h2>🏆 Leaderboard</h2><ul>" +
+        data.slice(0, 5).map(s => `<li>${s.name}: ${s.score}</li>`).join("") +
+        "</ul>";
+    });
+}
